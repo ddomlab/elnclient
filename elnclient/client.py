@@ -1,7 +1,7 @@
 import requests, os, mimetypes
 
 class ElnClient:
-    """Used for pushing info directly to the ddomlab ELN
+    """Used for pushing info directly to the ELN
     """
     def __init__(self, url: str, api_key: str, title: str, desc: str):
         self.url = url
@@ -46,11 +46,13 @@ class ElnClient:
             request: Returns POST request response 
         """
         if not os.path.isfile(image_path):
-            raise ValueError(f"File not found at {image_path}")
+            print(f"[ELN] ERROR - File not found at {image_path}, skipping")
+            return
         
         mime_type, _ = mimetypes.guess_file_type(image_path)
         if mime_type not in ("image/png", "image/jpeg"):
-            raise ValueError(f"Expected a PNG or JPG/JPEG, got: {mime_type}")
+            print(f"[ELN] ERROR - Expected a PNG or JPG/JPEG, got: {mime_type}, skipping")
+            return
 
         # Requires a different header because of how images are handled
         upload_headers = {"Authorization": self.api_key}
@@ -67,8 +69,17 @@ class ElnClient:
                 data=data
             )
         
-        if r.status_code != 201:
-            print(f'[ELN] Error adding {filename}')
-        else:
-            print(f'[ELN] Successfully added {filename} to experiment {self.id}')
+        if r.status_code != 201: print(f'[ELN] Error adding {filename}')
+        else: print(f'[ELN] Successfully added {filename} to experiment {self.id}')
         return r
+    
+    def add_step(self, step: str):
+        """Adds a step to the current experiment
+
+        Args:
+            step (str): Step description
+        """
+        r = requests.post(f"{self.url}/experiments/{self.id}/steps", headers=self.headers, json={"body": step})
+        if r.status_code == 201:
+            print(f"[ELN] Added step: {step}")
+        return
