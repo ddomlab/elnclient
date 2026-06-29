@@ -28,10 +28,23 @@ class ElnClient:
             raise RuntimeWarning(f"Error code: {r.status_code}\nCould not send this following data:\n{data}")
         
         self.id = int(r.headers["Location"].split('/')[-1]) # get the id from the last bit of the url
-        print(f"Successfully added experiment:\nTitle: {self.title}\nDescription: {self.desc}\nID: {self.id}\n")
-        return self.id
+        print(f"[ELN] Successfully added experiment:\nTitle: {self.title}\nDescription: {self.desc}\nID: {self.id}\n")
+        return
     
     def upload_image(self, image_path: str, comment: str | None):
+        """Uploads a png or jpg image to the eln experiment
+
+        Args:
+            image_path (str): Filepath of the image you would like to upload
+            comment (str | None): Image comment
+
+        Raises:
+            ValueError: File path led to a file that does not exists or is invalid
+            ValueError: _description_
+
+        Returns:
+            request: Returns POST request response 
+        """
         if not os.path.isfile(image_path):
             raise ValueError(f"File not found at {image_path}")
         
@@ -55,6 +68,7 @@ class ElnClient:
             )
         
         if r.status_code != 201:
-            print('Error adding photo')
-
-        return
+            print(f'[ELN] Error adding {filename}')
+        else:
+            print(f'[ELN] Successfully added {filename} to experiment {self.id}')
+        return r

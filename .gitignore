@@ -4,3 +4,4 @@ testing.py
 elnclient/__pycache__/__init__.cpython-314.pyc
 .gitignore
 .vscode/settings.json
+.vscode
