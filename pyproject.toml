@@ -10,8 +10,7 @@ authors = [{name = "Addison"}]
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "requests>=2.25",
-    "python-dotenv>=1.0",
+    "requests>=2.25"
 ]
 
 [project.optional-dependencies]

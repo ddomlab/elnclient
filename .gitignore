@@ -1,1 +1,6 @@
 .env
+testing.py
+.vscode/settings.json
+elnclient/__pycache__/__init__.cpython-314.pyc
+.gitignore
+.vscode/settings.json

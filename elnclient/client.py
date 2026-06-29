@@ -1,37 +1,21 @@
-import os, requests
-
-
+import requests, os, mimetypes
 
 class ElnClient:
-    def __init__(self, url: str, api_key: str):
+    """Used for pushing info directly to the ddomlab ELN
+    """
+    def __init__(self, url: str, api_key: str, title: str, desc: str):
         self.url = url
         self.api_key = api_key
 
         # Useful variables:
-        self.title = ""
-        self.desc = ""
+        self.title = title
+        self.desc = desc
         self.id = None
 
         self.headers = {
             "Authorization": f"{self.api_key}",
             "Content-Type": "application/json"
         }
-
-    def init_experiment(self, title: str, desc: str):
-        """Initalazes an experiment using a title and description, the minimal info needed to make an experiment
-
-        Args:
-            title (str): Title of experiment
-            desc (str): Description of experiment
-
-        Raises:
-            RuntimeWarning: Error sending info to ELN
-
-        Returns:
-            int: ID of new experiment in ELN
-        """
-        self.title = title
-        self.desc = desc
 
         data = {    #This defines who can read/write to the experiment in the ELN (30=anyone)
             "canwrite": "{\"base\":30,\"teams\":[],\"teamgroups\":[],\"users\":[]}",
@@ -44,7 +28,33 @@ class ElnClient:
             raise RuntimeWarning(f"Error code: {r.status_code}\nCould not send this following data:\n{data}")
         
         self.id = int(r.headers["Location"].split('/')[-1]) # get the id from the last bit of the url
+        print(f"Successfully added experiment:\nTitle: {self.title}\nDescription: {self.desc}\nID: {self.id}\n")
         return self.id
     
-    def upload_image(self):
-        pass
+    def upload_image(self, image_path: str, comment: str | None):
+        if not os.path.isfile(image_path):
+            raise ValueError(f"File not found at {image_path}")
+        
+        mime_type, _ = mimetypes.guess_file_type(image_path)
+        if mime_type not in ("image/png", "image/jpeg"):
+            raise ValueError(f"Expected a PNG or JPG/JPEG, got: {mime_type}")
+
+        # Requires a different header because of how images are handled
+        upload_headers = {"Authorization": self.api_key}
+
+        filename = os.path.basename(image_path)
+        with open(image_path, 'rb') as f:
+            files = {'file': (filename, f, '.jpg')}
+            data = {"comment": comment} if comment else {}
+
+            r = requests.post(
+                f"{self.url}/experiments/{self.id}/uploads",
+                headers=upload_headers,
+                files=files,
+                data=data
+            )
+        
+        if r.status_code != 201:
+            print('Error adding photo')
+
+        return
