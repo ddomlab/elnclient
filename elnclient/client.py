@@ -31,7 +31,7 @@ class ElnClient:
         print(f"[ELN] Successfully added experiment:\nTitle: {self.title}\nDescription: {self.desc}\nID: {self.id}\n")
         return
     
-    def upload_image(self, image_path: str, comment: str | None):
+    def upload_file(self, image_path: str, comment: str | None):
         """Uploads a png or jpg image to the eln experiment
 
         Args:
@@ -48,18 +48,13 @@ class ElnClient:
         if not os.path.isfile(image_path):
             print(f"[ELN] ERROR - File not found at {image_path}, skipping")
             return
-        
-        mime_type, _ = mimetypes.guess_file_type(image_path)
-        if mime_type not in ("image/png", "image/jpeg"):
-            print(f"[ELN] ERROR - Expected a PNG or JPG/JPEG, got: {mime_type}, skipping")
-            return
 
         # Requires a different header because of how images are handled
         upload_headers = {"Authorization": self.api_key}
 
         filename = os.path.basename(image_path)
         with open(image_path, 'rb') as f:
-            files = {'file': (filename, f, '.jpg')}
+            files = {'file': (filename, f)} # , '.jpg'
             data = {"comment": comment} if comment else {}
 
             r = requests.post(

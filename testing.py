@@ -14,8 +14,7 @@ ex = ElnClient(
     desc="More api testing!!"
     )
 
-ex.upload_image(image_path='Picture/testing.jpg', comment='Testing image')
-ex.upload_image(image_path='Pictures/capture_20260625_100237.jpg', comment='Image number 2')
+ex.upload_file(image_path='./scialog_1.yaml', comment='Testing image')
 ex.add_step("Testing")
 
 #TODO Lookup glob, pathlib
